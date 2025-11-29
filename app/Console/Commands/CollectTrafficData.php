@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SaveTrafficData;
+use App\Models\MikroTik;
 use App\Models\RouterosAPI;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Session;
@@ -14,7 +15,7 @@ class CollectTrafficData extends Command
      *
      * @var string
      */
-    protected $signature = 'traffic:collect {--interface=*} {--ip=} {--user=} {--password=}';
+    protected $signature = 'traffic:collect {--interface=*} {--ip=} {--user=} {--password=} {--mikrotik-id=}';
 
     /**
      * The console command description.
@@ -60,10 +61,20 @@ class CollectTrafficData extends Command
             }
         }
 
+        // Cari mikrotik_id jika tidak diberikan
+        $mikrotikId = $this->option('mikrotik-id');
+        if (!$mikrotikId) {
+            // Coba cari berdasarkan IP address
+            $mikrotik = MikroTik::where('ip_address', $ip)->first();
+            if ($mikrotik) {
+                $mikrotikId = $mikrotik->id;
+            }
+        }
+
         $this->info("Collecting traffic data for " . count($interfaces) . " interface(s)...");
 
         foreach ($interfaces as $interface) {
-            SaveTrafficData::dispatch($interface, $ip, $user, $password)
+            SaveTrafficData::dispatch($interface, $ip, $user, $password, $mikrotikId)
                 ->onQueue('traffic');
             $this->line("Queued traffic collection for: {$interface}");
         }

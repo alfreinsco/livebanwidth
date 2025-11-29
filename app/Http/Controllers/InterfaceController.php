@@ -107,8 +107,11 @@ class InterfaceController extends Controller
             $ftx = $getinterfacetraffic[0]['tx-bits-per-second'] ?? 0;
             $frx = $getinterfacetraffic[0]['rx-bits-per-second'] ?? 0;
 
+            // Ambil mikrotik_id dari session atau user
+            $mikrotikId = session('mikrotik_id') ?? (Auth::check() && Auth::user()->active_mikrotik_id ? Auth::user()->active_mikrotik_id : null);
+
             // Dispatch job untuk menyimpan data di background
-            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'])
+            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
                 ->onQueue('traffic');
 
             return response()->json([
@@ -151,6 +154,9 @@ class InterfaceController extends Controller
             ], 500);
         }
 
+        // Ambil mikrotik_id dari session atau user
+        $mikrotikId = session('mikrotik_id') ?? (Auth::check() && Auth::user()->active_mikrotik_id ? Auth::user()->active_mikrotik_id : null);
+
         // Ambil semua interface yang running
         $allInterfaces = $API->comm('/interface/print');
         $interfaces = [];
@@ -158,7 +164,7 @@ class InterfaceController extends Controller
                 if (isset($if['running']) && $if['running'] == 'true' && isset($if['name'])) {
                     $interfaces[] = $if['name'];
                     // Dispatch job untuk setiap interface
-                    SaveTrafficData::dispatch($if['name'], $credentials['ip'], $credentials['user'], $credentials['password'])
+                    SaveTrafficData::dispatch($if['name'], $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
                         ->onQueue('traffic');
                 }
             }

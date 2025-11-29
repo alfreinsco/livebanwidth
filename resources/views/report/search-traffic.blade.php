@@ -55,6 +55,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MikroTik Router</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Ke</th>
@@ -64,15 +65,28 @@
                     @forelse ($data ?? [] as $no => $row)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $no + 1 }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{!! $row['text'] !!}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ date("d F Y, h:i A", strtotime($row['time'])) }}
+                            @if($row->mikrotik)
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-router text-cyan-600 mr-2"></i>
+                                    <div>
+                                        <div class="font-medium">{{ $row->mikrotik->name }}</div>
+                                        <div class="text-xs text-gray-500">{{ $row->mikrotik->ip_address }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="text-gray-400 italic">-</span>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $row['id'] }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{!! $row->text !!}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ date("d F Y, h:i A", strtotime($row->time)) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $row->id }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                             Tidak ada data ditemukan
                         </td>
                     </tr>

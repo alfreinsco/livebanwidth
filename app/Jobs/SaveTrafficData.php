@@ -22,7 +22,8 @@ class SaveTrafficData implements ShouldQueue
         public string $interfaceName,
         public string $ip,
         public string $user,
-        public string $password
+        public string $password,
+        public ?int $mikrotikId = null
     ) {
         //
     }
@@ -59,6 +60,7 @@ class SaveTrafficData implements ShouldQueue
                 'rx_bits'        => $rx,
                 'tx_mbps'        => $txMbps,
                 'rx_mbps'        => $rxMbps,
+                'mikrotik_id'    => $this->mikrotikId,
             ]);
 
             $API->disconnect();

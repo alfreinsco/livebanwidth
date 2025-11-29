@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Traffic extends Model
 {
@@ -14,6 +15,7 @@ class Traffic extends Model
         'rx_bits',
         'tx_mbps',
         'rx_mbps',
+        'mikrotik_id',
     ];
 
     protected $casts = [
@@ -24,4 +26,12 @@ class Traffic extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the MikroTik that owns the traffic log.
+     */
+    public function mikrotik(): BelongsTo
+    {
+        return $this->belongsTo(MikroTik::class);
+    }
 }

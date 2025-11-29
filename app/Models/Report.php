@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Report extends Model
 {
@@ -11,7 +12,7 @@ class Report extends Model
 
     protected $table = 'data';
 
-    protected $fillable = ['text', 'time'];
+    protected $fillable = ['text', 'time', 'mikrotik_id'];
 
     protected $hidden = [];
 
@@ -28,5 +29,13 @@ class Report extends Model
                 $model->time = now();
             }
         });
+    }
+
+    /**
+     * Get the MikroTik that owns the report.
+     */
+    public function mikrotik(): BelongsTo
+    {
+        return $this->belongsTo(MikroTik::class);
     }
 }
