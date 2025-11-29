@@ -43,19 +43,7 @@ class MikroTikController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        // Test connection
-        $API = new RouterosAPI();
-        $API->debug = false;
-        $API->timeout = 5;
-        $API->attempts = 2;
         $port = $request->port ?? 8728;
-        $API->port = $port;
-
-        if (!$API->connect($request->ip_address, $request->username, $request->password)) {
-            return back()->withInput()->with('error', 'Gagal terhubung ke router MikroTik. Pastikan IP, username, dan password benar.');
-        }
-
-        $API->disconnect();
 
         $mikrotik = Auth::user()->mikrotiks()->create([
             'name' => $request->name,
@@ -82,23 +70,37 @@ class MikroTikController extends Controller
     public function show(string $id)
     {
         $mikrotik = Auth::user()->mikrotiks()->findOrFail($id);
-        
-        // Test connection
-        $API = new RouterosAPI();
-        $API->debug = false;
-        $API->timeout = 5;
-        $API->attempts = 2;
-        $API->port = $mikrotik->port;
-        
-        $isConnected = false;
-        $routerInfo = null;
-        
-        if ($API->connect($mikrotik->ip_address, $mikrotik->username, $mikrotik->password)) {
-            $isConnected = true;
+
+        // Hanya return view tanpa fetch data router
+        // Data akan di-load via AJAX setelah halaman tampil
+        return view('mikrotik.show', compact('mikrotik'));
+    }
+
+    /**
+     * Get router info via API (for async loading).
+     */
+    public function getRouterInfo(string $id)
+    {
+        $mikrotik = Auth::user()->mikrotiks()->findOrFail($id);
+
+        try {
+            $API = new RouterosAPI();
+            $API->debug = false;
+            $API->timeout = 5;
+            $API->attempts = 2;
+            $API->port = $mikrotik->port;
+
+            if (!$API->connect($mikrotik->ip_address, $mikrotik->username, $mikrotik->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat terhubung ke router',
+                ], 500);
+            }
+
             $identity = $API->comm('/system/identity/print');
             $resource = $API->comm('/system/resource/print');
             $routerboard = $API->comm('/system/routerboard/print');
-            
+
             $routerInfo = [
                 'identity' => $identity[0]['name'] ?? 'N/A',
                 'version' => $resource[0]['version'] ?? 'N/A',
@@ -106,11 +108,19 @@ class MikroTikController extends Controller
                 'board_name' => $resource[0]['board-name'] ?? 'N/A',
                 'uptime' => $resource[0]['uptime'] ?? 'N/A',
             ];
-            
-            $API->disconnect();
-        }
 
-        return view('mikrotik.show', compact('mikrotik', 'isConnected', 'routerInfo'));
+            $API->disconnect();
+
+            return response()->json([
+                'success' => true,
+                'data' => $routerInfo,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

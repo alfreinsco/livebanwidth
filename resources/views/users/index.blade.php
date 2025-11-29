@@ -2,12 +2,12 @@
     <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">Manajemen MikroTik</h1>
-                <p class="text-sm text-gray-600 mt-1">Kelola router MikroTik untuk monitoring</p>
+                <h1 class="text-3xl font-bold text-gray-800">Manajemen Users</h1>
+                <p class="text-sm text-gray-600 mt-1">Kelola pengguna aplikasi</p>
             </div>
-            <a href="{{ route('mikrotik.create') }}"
+            <a href="{{ route('users.create') }}"
                 class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-sm font-medium">
-                <i class="fa-solid fa-plus mr-2"></i>Tambah MikroTik
+                <i class="fa-solid fa-plus mr-2"></i>Tambah User
             </a>
         </div>
 
@@ -29,14 +29,14 @@
         </div>
         @endif
 
-        @if($mikrotiks->isEmpty())
+        @if($users->isEmpty())
         <div class="bg-white rounded-lg shadow-md p-12 text-center">
-            <i class="fa-solid fa-server text-6xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 text-lg font-medium mb-2">Belum ada MikroTik</p>
-            <p class="text-gray-400 text-sm mb-6">Tambahkan router MikroTik pertama Anda untuk mulai monitoring</p>
-            <a href="{{ route('mikrotik.create') }}"
+            <i class="fa-solid fa-users text-6xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 text-lg font-medium mb-2">Belum ada User</p>
+            <p class="text-gray-400 text-sm mb-6">Tambahkan user pertama Anda</p>
+            <a href="{{ route('users.create') }}"
                 class="inline-flex items-center px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
-                <i class="fa-solid fa-plus mr-2"></i>Tambah MikroTik
+                <i class="fa-solid fa-plus mr-2"></i>Tambah User
             </a>
         </div>
         @else
@@ -46,22 +46,16 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Router
+                                Nama
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                IP Address
+                                Email
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Username
+                                MikroTik Aktif
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Port
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Deskripsi
+                                Dibuat
                             </th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi
@@ -69,61 +63,45 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($mikrotiks as $mikrotik)
+                        @foreach($users as $user)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <i class="fa-solid fa-server text-gray-400 mr-2"></i>
-                                    <span class="text-sm font-medium text-gray-900">{{ $mikrotik->name }}</span>
+                                    <div class="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white font-semibold mr-3">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ $user->name }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm text-gray-900 font-mono">{{ $mikrotik->ip_address }}</span>
+                                <span class="text-sm text-gray-900">{{ $user->email }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm text-gray-900">{{ $mikrotik->username }}</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm text-gray-900">{{ $mikrotik->port }}</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($mikrotik->id == ($activeMikroTik->id ?? null))
-                                <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs font-semibold rounded-full">
-                                    <i class="fa-solid fa-check-circle mr-1"></i>Aktif
-                                </span>
+                                @if($user->activeMikroTik)
+                                <span class="text-sm text-gray-900">{{ $user->activeMikroTik->name }}</span>
+                                <span class="text-xs text-gray-500 block">{{ $user->activeMikroTik->ip_address }}</span>
                                 @else
-                                <span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
-                                    Tidak Aktif
-                                </span>
+                                <span class="text-sm text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-gray-500">{{ $mikrotik->description ?? '-' }}</span>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-gray-900">{{ $user->created_at->format('d M Y') }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
-                                    @if($mikrotik->id != ($activeMikroTik->id ?? null))
-                                    <form action="{{ route('mikrotik.set-active', $mikrotik->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="px-3 py-1 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-xs font-medium"
-                                            title="Set Aktif">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
-                                    <a href="{{ route('mikrotik.show', $mikrotik->id) }}"
+                                    <a href="{{ route('users.show', $user->id) }}"
                                         class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-xs font-medium"
                                         title="Lihat Detail">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('mikrotik.edit', $mikrotik->id) }}"
+                                    <a href="{{ route('users.edit', $user->id) }}"
                                         class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium"
                                         title="Edit">
                                         <i class="fa-solid fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('mikrotik.destroy', $mikrotik->id) }}" method="POST" class="inline"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus MikroTik ini?')">
+                                    @if($user->id !== auth()->id())
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -132,6 +110,7 @@
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -143,3 +122,4 @@
         @endif
     </div>
 </x-layouts.app>
+

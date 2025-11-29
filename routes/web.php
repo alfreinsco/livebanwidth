@@ -9,19 +9,18 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UseractiveController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman login & gagal
+// Public routes (tidak perlu login)
 Route::get('/', [AuthController::class, 'index'])->name('auth.index');
+Route::get('login', [AuthController::class, 'index'])->name('login');
+Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
 Route::get('/failed', function () {
     return view('failed');
 })->name('failed.view');
 
-// Auth
-Route::get('login', [AuthController::class, 'index'])->name('auth.index');
-Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
-Route::get('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
-
-// Protected routes - require authentication
-Route::middleware(['auth'])->group(function () {
+// Protected routes - require authentication (menggunakan middleware auth default Laravel)
+Route::middleware('auth')->group(function () {
+    // Logout harus terautentikasi
+    Route::get('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
     // Dashboard baru (UI cyan) – menggunakan data dari LegacyDashboardController
     Route::get('dashboard', [LegacyDashboardController::class, 'index'])->name('dashboard.index');
     Route::get('dashboard/data', [LegacyDashboardController::class, 'getDashboardData'])->name('dashboard.data');
@@ -29,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     // MikroTik Management
     Route::resource('mikrotik', \App\Http\Controllers\MikroTikController::class);
     Route::post('mikrotik/{id}/set-active', [\App\Http\Controllers\MikroTikController::class, 'setActive'])->name('mikrotik.set-active');
+    Route::get('mikrotik/{id}/router-info', [\App\Http\Controllers\MikroTikController::class, 'getRouterInfo'])->name('mikrotik.router-info');
 
     // Interface
     Route::get('interface', [InterfaceController::class, 'index'])->name('interface.index');
@@ -63,7 +63,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('report-up/load', [ReportController::class, 'load'])->name('report-up.load');
     Route::get('report-up/search', [ReportController::class, 'search'])->name('search.report');
 
-    // User active
+    // User Management
+    Route::resource('users', \App\Http\Controllers\UserController::class);
+
+    // User active (MikroTik users)
     Route::get('useractive', [UseractiveController::class, 'index'])->name('user.index');
     Route::get('realtime/useractive', [UseractiveController::class, 'useractive'])->name('realtime.useractive');
 

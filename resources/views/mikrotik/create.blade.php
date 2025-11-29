@@ -73,7 +73,6 @@
                         <input type="password" name="password" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                             placeholder="••••••••">
-                        <p class="text-xs text-gray-500 mt-1">Koneksi akan diuji saat menyimpan</p>
                     </div>
 
                     <div>

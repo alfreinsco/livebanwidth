@@ -59,12 +59,12 @@
                 <a href="{{ route('user.index') }}"
                     class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-cyan-500/50 transition-colors">
                     <i class="fa-solid fa-users w-5"></i>
-                    <span>Users</span>
+                    <span>MikroTik Users</span>
                 </a>
-                <a href="#"
-                    class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-cyan-500/50 transition-colors">
-                    <i class="fa-solid fa-cog w-5"></i>
-                    <span>Settings</span>
+                <a href="{{ route('users.index') }}"
+                    class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('users.*') ? 'bg-cyan-500' : 'hover:bg-cyan-500/50' }} transition-colors">
+                    <i class="fa-solid fa-user-gear w-5"></i>
+                    <span>Users</span>
                 </a>
             </nav>
 

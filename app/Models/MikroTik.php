@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MikroTik extends Model
 {
+    protected $table = 'mikrotiks';
+
     protected $fillable = [
         'user_id',
         'name',
