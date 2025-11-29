@@ -1,9 +1,375 @@
 <x-layouts.app>
-    <h1 class="text-3xl font-bold underline">
-        Hello world!
-    </h1>
-    <button
-        class="inline-block cursor-pointer rounded-md bg-gray-800 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900">
-        <i class="fa-solid fa-plus"></i> Button
-    </button>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
+            <p class="text-gray-700">Memuat data dari router...</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Widgets Grid -->
+    <div id="dashboard-content" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Router Info -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Router</p>
+                        <p class="text-lg font-bold text-gray-800 truncate" id="router-identity">-</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-gray-600">
+                                <i class="fa-solid fa-microchip mr-1"></i><span id="router-model">-</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-server text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Interfaces -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Total Interfaces</p>
+                        <p class="text-3xl font-bold text-gray-800" id="total-interface">0</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-green-600">
+                                <i class="fa-solid fa-circle-check mr-1"></i><span id="interface-running">0</span>
+                                Running
+                            </span>
+                            <span class="text-xs text-red-600">
+                                <i class="fa-solid fa-circle-xmark mr-1"></i><span id="interface-down">0</span> Down
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-ethernet text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPU Usage -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">CPU Usage</p>
+                        <p class="text-3xl font-bold text-gray-800" id="cpu-load">0%</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-gray-600">
+                                <i class="fa-solid fa-clock mr-1"></i><span id="uptime">-</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-gauge-high text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Logs -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Traffic Logs</p>
+                        <p class="text-3xl font-bold text-gray-800" id="total-reports">0</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-green-600">
+                                <i class="fa-solid fa-check mr-1"></i><span id="reports-24h">0</span> (24h)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-list-ul text-yellow-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PPPoE Secret -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">PPPoE Secret</p>
+                        <p class="text-3xl font-bold text-gray-800" id="total-secret">0</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-green-600">
+                                <i class="fa-solid fa-circle-check mr-1"></i><span id="secret-active">0</span> Active
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-network-wired text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotspot Users -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Hotspot Users</p>
+                        <p class="text-3xl font-bold text-gray-800" id="total-hotspot-users">0</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-green-600">
+                                <i class="fa-solid fa-circle-check mr-1"></i><span id="hotspot-active">0</span> Active
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-users text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Resources -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Free Memory</p>
+                        <p class="text-lg font-bold text-gray-800" id="free-memory">-</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-gray-600">
+                                <i class="fa-solid fa-hard-drive mr-1"></i><span id="free-hdd">-</span> Free
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-memory text-pink-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Active Users</p>
+                        <p class="text-3xl font-bold text-gray-800" id="total-user-active">0</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs text-gray-600">
+                                <i class="fa-solid fa-user-check mr-1"></i>Logged in
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16 bg-cyan-100 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-user text-cyan-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Info Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Router Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Router</h3>
+                <div class="space-y-3" id="router-info">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Identity</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-identity">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Model</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-model">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Board Name</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-boardname">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Version</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-version">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2">
+                        <span class="text-sm text-gray-600">Uptime</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-uptime">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Resources -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">System Resources</h3>
+                <div class="space-y-3" id="system-resources">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">CPU Load</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-cpu">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Free Memory</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-memory">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Free HDD Space</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-hdd">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Total Interfaces</span>
+                        <span class="text-sm font-medium text-gray-800" id="info-total-interface">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2">
+                        <span class="text-sm text-gray-600">Interfaces Running</span>
+                        <span class="text-sm font-medium text-green-600" id="info-interface-running">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interface List -->
+        <div id="interface-list-container" class="bg-white rounded-lg shadow-md p-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Daftar Interface</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                MTU</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interface-tbody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+            <i class="fa-solid fa-exclamation-circle text-red-600 mr-3"></i>
+            <div>
+                <p class="text-red-800 font-medium" id="error-text">Terjadi kesalahan saat memuat data</p>
+                <button onclick="loadDashboardData()" class="text-red-600 hover:text-red-800 text-sm mt-1 underline">
+                    Coba lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper functions
+        function formatBytes(bytes, precision = 2) {
+            if (!bytes || bytes == 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const base = Math.log(bytes) / Math.log(1024);
+            return Math.round(Math.pow(1024, base - Math.floor(base)) * Math.pow(10, precision)) / Math.pow(10, precision) +
+                ' ' + units[Math.floor(base)];
+        }
+
+        function formatUptime(uptime) {
+            if (!uptime) return 'N/A';
+            const days = Math.floor(uptime / 86400);
+            const hours = Math.floor((uptime % 86400) / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            return days + 'd ' + hours + 'h ' + minutes + 'm';
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '0';
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        function loadDashboardData() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const dashboardContent = document.getElementById('dashboard-content');
+            const errorMessage = document.getElementById('error-message');
+
+            // Show loading
+            loadingOverlay.classList.remove('hidden');
+            dashboardContent.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            fetch('{{ route('dashboard.data') }}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const d = data.data;
+
+                        // Update widgets
+                        document.getElementById('router-identity').textContent = d.identity || 'N/A';
+                        document.getElementById('router-model').textContent = d.model || 'N/A';
+                        document.getElementById('total-interface').textContent = formatNumber(d.totalinterface);
+                        document.getElementById('interface-running').textContent = formatNumber(d.interfacerunning);
+                        document.getElementById('interface-down').textContent = formatNumber((d.totalinterface || 0) - (
+                            d.interfacerunning || 0));
+                        document.getElementById('cpu-load').textContent = (d.cpu || '0') + '%';
+                        document.getElementById('uptime').textContent = formatUptime(d.uptime);
+                        document.getElementById('total-reports').textContent = formatNumber(d.totalreports);
+                        document.getElementById('reports-24h').textContent = formatNumber(d.reports24h);
+                        document.getElementById('total-secret').textContent = formatNumber(d.totalsecret);
+                        document.getElementById('secret-active').textContent = formatNumber(d.secretactive);
+                        document.getElementById('total-hotspot-users').textContent = formatNumber(d.totalhotspotusers);
+                        document.getElementById('hotspot-active').textContent = formatNumber(d.hotspotactive);
+                        document.getElementById('free-memory').textContent = formatBytes(d.freememory);
+                        document.getElementById('free-hdd').textContent = formatBytes(d.freehdd);
+                        document.getElementById('total-user-active').textContent = formatNumber(d.totaluseractive);
+
+                        // Update info sections
+                        document.getElementById('info-identity').textContent = d.identity || 'N/A';
+                        document.getElementById('info-model').textContent = d.model || 'N/A';
+                        document.getElementById('info-boardname').textContent = d.boardname || 'N/A';
+                        document.getElementById('info-version').textContent = d.version || 'N/A';
+                        document.getElementById('info-uptime').textContent = formatUptime(d.uptime);
+                        document.getElementById('info-cpu').textContent = (d.cpu || '0') + '%';
+                        document.getElementById('info-memory').textContent = formatBytes(d.freememory);
+                        document.getElementById('info-hdd').textContent = formatBytes(d.freehdd);
+                        document.getElementById('info-total-interface').textContent = formatNumber(d.totalinterface);
+                        document.getElementById('info-interface-running').textContent = formatNumber(d
+                            .interfacerunning);
+
+                        // Update interface list
+                        if (d.interface && d.interface.length > 0) {
+                            const tbody = document.getElementById('interface-tbody');
+                            tbody.innerHTML = '';
+                            d.interface.slice(0, 5).forEach(iface => {
+                                const row = document.createElement('tr');
+                                row.className = 'hover:bg-gray-50';
+                                const status = (iface.running === 'true') ?
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Running</span>' :
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Down</span>';
+                                row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${iface.name || 'N/A'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${iface.type || 'N/A'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${status}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${iface.mtu || 'N/A'}</td>
+                            `;
+                                tbody.appendChild(row);
+                            });
+                            document.getElementById('interface-list-container').classList.remove('hidden');
+                        }
+
+                        // Hide loading, show content
+                        loadingOverlay.classList.add('hidden');
+                        dashboardContent.classList.remove('hidden');
+                    } else {
+                        throw new Error(data.message || 'Gagal memuat data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingOverlay.classList.add('hidden');
+                    errorMessage.classList.remove('hidden');
+                    document.getElementById('error-text').textContent = error.message ||
+                        'Terjadi kesalahan saat memuat data dari router';
+                });
+        }
+
+        // Load data when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+        });
+    </script>
 </x-layouts.app>

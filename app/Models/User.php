@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'active_mikrotik_id',
     ];
 
     /**
@@ -44,5 +45,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the active MikroTik for this user.
+     */
+    public function activeMikroTik()
+    {
+        return $this->belongsTo(MikroTik::class, 'active_mikrotik_id');
+    }
+
+    /**
+     * Get all MikroTiks for this user.
+     */
+    public function mikrotiks()
+    {
+        return $this->hasMany(MikroTik::class);
     }
 }
