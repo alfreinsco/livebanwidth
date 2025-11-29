@@ -107,12 +107,7 @@ class InterfaceController extends Controller
             $ftx = $getinterfacetraffic[0]['tx-bits-per-second'] ?? 0;
             $frx = $getinterfacetraffic[0]['rx-bits-per-second'] ?? 0;
 
-            // Ambil mikrotik_id dari session atau user
-            $mikrotikId = session('mikrotik_id') ?? (Auth::check() && Auth::user()->active_mikrotik_id ? Auth::user()->active_mikrotik_id : null);
-
-            // Dispatch job untuk menyimpan data di background
-            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
-                ->onQueue('traffic');
+            $API->disconnect();
 
             return response()->json([
                 'success' => true,
@@ -129,6 +124,37 @@ class InterfaceController extends Controller
             'success' => false,
             'message' => 'Connection Failed',
         ], 500);
+    }
+
+    public function saveTrafficData(string $interface)
+    {
+        $credentials = MikroTikHelper::getCredentials();
+
+        if (!$credentials) {
+            return response()->json([
+                'success' => false,
+                'message' => 'MikroTik credentials not found',
+            ], 401);
+        }
+
+        try {
+            // Ambil mikrotik_id dari session atau user
+            $mikrotikId = session('mikrotik_id') ?? (Auth::check() && Auth::user()->active_mikrotik_id ? Auth::user()->active_mikrotik_id : null);
+
+            // Dispatch job untuk menyimpan data di background
+            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
+                ->onQueue('traffic');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Traffic data save job queued successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function collectAllTraffic()
