@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     // Interface
     Route::get('interface', [InterfaceController::class, 'index'])->name('interface.index');
+    Route::get('interface/data', [InterfaceController::class, 'getInterfaces'])->name('interface.data');
     Route::get('interface/{interface}/traffic', [InterfaceController::class, 'traffic'])->name('interface.traffic');
     Route::get('interface/{interface}/traffic/api', [InterfaceController::class, 'trafficApi'])->name('interface.traffic.api');
     Route::post('interface/collect-all', [InterfaceController::class, 'collectAllTraffic'])->name('interface.collect-all');

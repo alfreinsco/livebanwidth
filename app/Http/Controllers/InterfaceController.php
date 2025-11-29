@@ -11,28 +11,48 @@ class InterfaceController extends Controller
 {
     public function index()
     {
+        // Hanya return view tanpa fetch data
+        // Data akan di-load via AJAX setelah halaman tampil
+        return view('interface.index');
+    }
+
+    public function getInterfaces()
+    {
         $credentials = MikroTikHelper::getCredentials();
 
         if (!$credentials) {
-            return redirect()->route('mikrotik.index')
-                ->with('error', 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.',
+            ], 401);
         }
 
         $API = new RouterosAPI();
         $API->debug = false;
+        $API->timeout = 5;
+        $API->attempts = 2;
 
-        if ($API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
-            $interface = $API->comm('/interface/print');
+        try {
+            if (!$API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal terhubung ke router MikroTik',
+                ], 500);
+            }
 
-            $data = [
-                'menu'      => 'Interfaces',
-                'interface' => $interface,
-            ];
+            $interfaces = $API->comm('/interface/print');
+            $API->disconnect();
 
-            return view('interface.index', $data);
+            return response()->json([
+                'success' => true,
+                'data' => $interfaces,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
         }
-
-        return redirect()->route('failed.view');
     }
 
     public function traffic(string $interface)
