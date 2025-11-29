@@ -273,6 +273,77 @@
             </div>
         </div>
 
+        <!-- Traffic Monitor Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Traffic Monitor</h3>
+                    <p class="text-sm text-gray-500 mt-1">Real-time traffic monitoring dari interface aktif</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select id="traffic-interface-select"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        <option value="">Pilih Interface...</option>
+                    </select>
+                    <button onclick="startTrafficMonitor()" id="start-monitor-btn"
+                        class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-sm font-medium">
+                        <i class="fa-solid fa-play mr-2"></i>Start Monitor
+                    </button>
+                    <button onclick="stopTrafficMonitor()" id="stop-monitor-btn"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium hidden">
+                        <i class="fa-solid fa-stop mr-2"></i>Stop Monitor
+                    </button>
+                </div>
+            </div>
+
+            <!-- Traffic Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">TX (Upload)</p>
+                            <p class="text-2xl font-bold text-blue-600" id="traffic-tx">0 Mbps</p>
+                            <p class="text-xs text-gray-500 mt-1" id="traffic-tx-bits">0 bps</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-up text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">RX (Download)</p>
+                            <p class="text-2xl font-bold text-green-600" id="traffic-rx">0 Mbps</p>
+                            <p class="text-xs text-gray-500 mt-1" id="traffic-rx-bits">0 bps</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-down text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">Total Traffic</p>
+                            <p class="text-2xl font-bold text-purple-600" id="traffic-total">0 Mbps</p>
+                            <p class="text-xs text-gray-500 mt-1" id="traffic-interface-name">-</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Chart -->
+            <div class="relative">
+                <canvas id="traffic-chart" height="100"></canvas>
+            </div>
+        </div>
+
         <!-- Interface List -->
         <div id="interface-list-container" class="bg-white rounded-lg shadow-md p-6 hidden">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Daftar Interface</h3>
@@ -297,6 +368,9 @@
         </div>
     </div>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <script>
         // Helper functions
         function formatBytes(bytes, precision = 2) {
@@ -305,6 +379,13 @@
             const base = Math.log(bytes) / Math.log(1024);
             return Math.round(Math.pow(1024, base - Math.floor(base)) * Math.pow(10, precision)) / Math.pow(10, precision) +
                 ' ' + units[Math.floor(base)];
+        }
+
+        function formatBytesPerSecond(bits, precision = 2) {
+            if (!bits || bits == 0) return '0 bps';
+            if (bits < 1000) return bits.toFixed(0) + ' bps';
+            if (bits < 1000000) return (bits / 1000).toFixed(precision) + ' Kbps';
+            return (bits / 1000000).toFixed(precision) + ' Mbps';
         }
 
         function formatUptime(uptime) {
@@ -393,6 +474,9 @@
                                 tbody.appendChild(row);
                             });
                             document.getElementById('interface-list-container').classList.remove('hidden');
+
+                            // Populate interface select for traffic monitor
+                            populateInterfaceSelect(d.interface);
                         }
 
                         // Hide loading, show content
@@ -414,9 +498,193 @@
                 });
         }
 
+        // Traffic Monitor Variables
+        let trafficChart = null;
+        let trafficMonitorInterval = null;
+        let trafficData = {
+            labels: [],
+            tx: [],
+            rx: []
+        };
+        const maxDataPoints = 30;
+
+        // Initialize Traffic Chart
+        function initTrafficChart() {
+            const ctx = document.getElementById('traffic-chart');
+            if (!ctx) return;
+
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trafficData.labels,
+                    datasets: [{
+                        label: 'TX (Upload)',
+                        data: trafficData.tx,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'RX (Download)',
+                        data: trafficData.rx,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Mbps'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Waktu'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // Start Traffic Monitor
+        function startTrafficMonitor() {
+            const interfaceSelect = document.getElementById('traffic-interface-select');
+            const selectedInterface = interfaceSelect.value;
+
+            if (!selectedInterface) {
+                alert('Silakan pilih interface terlebih dahulu');
+                return;
+            }
+
+            // Reset chart data
+            trafficData = {
+                labels: [],
+                tx: [],
+                rx: []
+            };
+
+            // Update buttons
+            document.getElementById('start-monitor-btn').classList.add('hidden');
+            document.getElementById('stop-monitor-btn').classList.remove('hidden');
+            interfaceSelect.disabled = true;
+
+            // Start monitoring
+            trafficMonitorInterval = setInterval(() => {
+                fetch(`/interface/${selectedInterface}/traffic/api`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const txMbps = data.data.tx_mbps || 0;
+                            const rxMbps = data.data.rx_mbps || 0;
+                            const txBits = data.data.tx || 0;
+                            const rxBits = data.data.rx || 0;
+
+                            // Update stats
+                            document.getElementById('traffic-tx').textContent = txMbps.toFixed(2) + ' Mbps';
+                            document.getElementById('traffic-rx').textContent = rxMbps.toFixed(2) + ' Mbps';
+                            document.getElementById('traffic-total').textContent = (txMbps + rxMbps).toFixed(
+                                2) + ' Mbps';
+                            document.getElementById('traffic-tx-bits').textContent = formatBytesPerSecond(
+                                txBits) + '/s';
+                            document.getElementById('traffic-rx-bits').textContent = formatBytesPerSecond(
+                                rxBits) + '/s';
+                            document.getElementById('traffic-interface-name').textContent = selectedInterface;
+
+                            // Add to chart data
+                            const now = new Date().toLocaleTimeString('id-ID');
+                            trafficData.labels.push(now);
+                            trafficData.tx.push(txMbps);
+                            trafficData.rx.push(rxMbps);
+
+                            // Limit data points
+                            if (trafficData.labels.length > maxDataPoints) {
+                                trafficData.labels.shift();
+                                trafficData.tx.shift();
+                                trafficData.rx.shift();
+                            }
+
+                            // Update chart
+                            if (trafficChart) {
+                                trafficChart.data.labels = trafficData.labels;
+                                trafficChart.data.datasets[0].data = trafficData.tx;
+                                trafficChart.data.datasets[1].data = trafficData.rx;
+                                trafficChart.update('none');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching traffic data:', error);
+                    });
+            }, 2000); // Update every 2 seconds
+        }
+
+        // Stop Traffic Monitor
+        function stopTrafficMonitor() {
+            if (trafficMonitorInterval) {
+                clearInterval(trafficMonitorInterval);
+                trafficMonitorInterval = null;
+            }
+
+            // Update buttons
+            document.getElementById('start-monitor-btn').classList.remove('hidden');
+            document.getElementById('stop-monitor-btn').classList.add('hidden');
+            document.getElementById('traffic-interface-select').disabled = false;
+        }
+
+        // Populate Interface Select
+        function populateInterfaceSelect(interfaces) {
+            const select = document.getElementById('traffic-interface-select');
+            if (!select) return;
+
+            // Clear existing options except first
+            select.innerHTML = '<option value="">Pilih Interface...</option>';
+
+            if (interfaces && interfaces.length > 0) {
+                interfaces.forEach(iface => {
+                    if (iface.running === 'true') {
+                        const option = document.createElement('option');
+                        option.value = iface.name;
+                        option.textContent = `${iface.name} (${iface.type || 'N/A'})`;
+                        select.appendChild(option);
+                    }
+                });
+            }
+        }
+
         // Load data when page is ready
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboardData();
+            initTrafficChart();
         });
     </script>
 </x-layouts.app>
