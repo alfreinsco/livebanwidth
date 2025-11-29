@@ -1,13 +1,70 @@
 <x-layouts.app>
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg p-6 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
-            <p class="text-gray-700">Memuat data dari router...</p>
+    <!-- Loading State - Modern Design -->
+    <div id="loading-state" class="relative">
+        <div class="flex flex-col items-center justify-center py-20">
+            <div class="relative">
+                <!-- Animated circles -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-20 h-20 border-4 border-cyan-200 rounded-full animate-ping"></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-16 h-16 border-4 border-cyan-300 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative w-12 h-12 border-4 border-cyan-600 rounded-full border-t-transparent animate-spin">
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Memuat Data Dashboard</h3>
+                <p class="text-sm text-gray-500">Mengambil data dari router MikroTik...</p>
+            </div>
+            <!-- Skeleton Loading -->
+            <div class="mt-8 w-full max-w-7xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @for ($i = 0; $i < 8; $i++)
+                        <div class="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-24 mb-3"></div>
+                                    <div class="h-8 bg-gray-200 rounded w-16 mb-2"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-32"></div>
+                                </div>
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Dashboard Widgets Grid -->
+    <!-- Error State - Modern Design -->
+    <div id="error-state" class="hidden">
+        <div class="flex flex-col items-center justify-center py-20">
+            <div
+                class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-8 max-w-md w-full shadow-lg border border-red-100">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
+                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Gagal Memuat Data</h3>
+                    <p class="text-sm text-gray-600 mb-6" id="error-text">Terjadi kesalahan saat memuat data dari router
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button onclick="loadDashboardData()"
+                            class="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium shadow-md hover:shadow-lg">
+                            <i class="fa-solid fa-arrow-rotate-right mr-2"></i>Coba Lagi
+                        </button>
+                        <a href="{{ route('mikrotik.index') }}"
+                            class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-center">
+                            <i class="fa-solid fa-server mr-2"></i>Kelola Router
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
     <div id="dashboard-content" class="hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <!-- Router Info -->
@@ -240,19 +297,6 @@
         </div>
     </div>
 
-    <!-- Error Message -->
-    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-        <div class="flex items-center">
-            <i class="fa-solid fa-exclamation-circle text-red-600 mr-3"></i>
-            <div>
-                <p class="text-red-800 font-medium" id="error-text">Terjadi kesalahan saat memuat data</p>
-                <button onclick="loadDashboardData()" class="text-red-600 hover:text-red-800 text-sm mt-1 underline">
-                    Coba lagi
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Helper functions
         function formatBytes(bytes, precision = 2) {
@@ -277,14 +321,14 @@
         }
 
         function loadDashboardData() {
-            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingState = document.getElementById('loading-state');
             const dashboardContent = document.getElementById('dashboard-content');
-            const errorMessage = document.getElementById('error-message');
+            const errorState = document.getElementById('error-state');
 
-            // Show loading
-            loadingOverlay.classList.remove('hidden');
+            // Show loading, hide content and error
+            loadingState.classList.remove('hidden');
             dashboardContent.classList.add('hidden');
-            errorMessage.classList.add('hidden');
+            errorState.classList.add('hidden');
 
             fetch('{{ route('dashboard.data') }}', {
                     method: 'GET',
@@ -352,7 +396,7 @@
                         }
 
                         // Hide loading, show content
-                        loadingOverlay.classList.add('hidden');
+                        loadingState.classList.add('hidden');
                         dashboardContent.classList.remove('hidden');
                     } else {
                         throw new Error(data.message || 'Gagal memuat data');
@@ -360,10 +404,13 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    loadingOverlay.classList.add('hidden');
-                    errorMessage.classList.remove('hidden');
-                    document.getElementById('error-text').textContent = error.message ||
-                        'Terjadi kesalahan saat memuat data dari router';
+                    loadingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                    const errorText = document.getElementById('error-text');
+                    if (errorText) {
+                        errorText.textContent = error.message ||
+                            'Terjadi kesalahan saat memuat data dari router. Pastikan router dapat diakses dan kredensial benar.';
+                    }
                 });
         }
 

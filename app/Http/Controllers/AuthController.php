@@ -32,7 +32,8 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        // Set session untuk MikroTik aktif jika ada
+        // Set session untuk MikroTik aktif jika ada (dari database)
+        $user->load('activeMikroTik');
         if ($user->active_mikrotik_id && $user->activeMikroTik) {
             $mikrotik = $user->activeMikroTik;
             session([
