@@ -11,30 +11,52 @@ class PPPoEController extends Controller
 {
     public function secret()
     {
+        // Hanya return view tanpa fetch data
+        // Data akan di-load via AJAX setelah halaman tampil
+        return view('pppoe.secret');
+    }
+
+    public function getSecrets()
+    {
         $credentials = MikroTikHelper::getCredentials();
         if (!$credentials) {
-            return redirect()->route('mikrotik.index')
-                ->with('error', 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.',
+            ], 401);
         }
 
         $API = new RouterosAPI();
         $API->debug = false;
+        $API->timeout = 5;
+        $API->attempts = 2;
 
-        if ($API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
+        try {
+            if (!$API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal terhubung ke router MikroTik',
+                ], 500);
+            }
+
             $secret  = $API->comm('/ppp/secret/print');
             $profile = $API->comm('/ppp/profile/print');
+            $API->disconnect();
 
-            $data = [
-                'menu'       => 'PPPoE',
-                'totalsecret'=> count($secret),
-                'secret'     => $secret,
-                'profile'    => $profile,
-            ];
-
-            return view('pppoe.secret', $data);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'totalsecret' => count($secret),
+                    'secret' => $secret,
+                    'profile' => $profile,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
         }
-
-        return redirect()->route('failed.view');
     }
 
     public function add(Request $request)

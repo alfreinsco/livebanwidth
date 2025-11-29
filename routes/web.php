@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
 
     // PPPoE
     Route::get('pppoe/secret', [PPPoEController::class, 'secret'])->name('pppoe.secret');
+    Route::get('pppoe/secret/data', [PPPoEController::class, 'getSecrets'])->name('pppoe.secret.data');
     Route::get('pppoe/secret/active', [PPPoEController::class, 'active'])->name('pppoe.active');
     Route::post('pppoe/secret/add', [PPPoEController::class, 'add'])->name('pppoe.add');
     Route::get('pppoe/secret/edit/{id}', [PPPoEController::class, 'edit'])->name('pppoe.edit');
