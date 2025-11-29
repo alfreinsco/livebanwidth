@@ -34,15 +34,20 @@ class SaveTrafficData implements ShouldQueue
     public function handle(): void
     {
         try {
+            Log::info("SaveTrafficData job started for interface: {$this->interfaceName}, MikroTik ID: {$this->mikrotikId}");
+
             $API = new RouterosAPI();
             $API->debug = false;
             $API->timeout = 5;
             $API->attempts = 2;
 
             if (!$API->connect($this->ip, $this->user, $this->password)) {
-                Log::warning("Failed to connect to router for traffic data: {$this->interfaceName}");
-                return;
+                $errorMsg = "Failed to connect to router for traffic data: {$this->interfaceName} (IP: {$this->ip}, User: {$this->user})";
+                Log::warning($errorMsg);
+                throw new \Exception($errorMsg);
             }
+
+            Log::info("Connected to router, fetching traffic data for interface: {$this->interfaceName}");
 
             $trafficData = $API->comm('/interface/monitor-traffic', [
                 'interface' => $this->interfaceName,
@@ -54,7 +59,9 @@ class SaveTrafficData implements ShouldQueue
             $txMbps = round($tx / 1000000, 2);
             $rxMbps = round($rx / 1000000, 2);
 
-            Traffic::create([
+            Log::info("Traffic data retrieved - TX: {$tx} bps, RX: {$rx} bps");
+
+            $traffic = Traffic::create([
                 'interface_name' => $this->interfaceName,
                 'tx_bits'        => $tx,
                 'rx_bits'        => $rx,
@@ -63,9 +70,14 @@ class SaveTrafficData implements ShouldQueue
                 'mikrotik_id'    => $this->mikrotikId,
             ]);
 
+            Log::info("Traffic data saved successfully. ID: {$traffic->id}");
+
             $API->disconnect();
         } catch (\Exception $e) {
-            Log::error("Error saving traffic data for {$this->interfaceName}: " . $e->getMessage());
+            Log::error("Error saving traffic data for {$this->interfaceName}: " . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
             throw $e;
         }
     }

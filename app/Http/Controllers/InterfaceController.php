@@ -6,6 +6,7 @@ use App\Helpers\MikroTikHelper;
 use App\Jobs\SaveTrafficData;
 use App\Models\RouterosAPI;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class InterfaceController extends Controller
 {
@@ -20,20 +21,20 @@ class InterfaceController extends Controller
     {
         $credentials = MikroTikHelper::getCredentials();
 
-        if (!$credentials) {
+        if (! $credentials) {
             return response()->json([
                 'success' => false,
                 'message' => 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.',
             ], 401);
         }
 
-        $API = new RouterosAPI();
+        $API = new RouterosAPI;
         $API->debug = false;
         $API->timeout = 5;
         $API->attempts = 2;
 
         try {
-            if (!$API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
+            if (! $API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal terhubung ke router MikroTik',
@@ -50,7 +51,7 @@ class InterfaceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -59,12 +60,12 @@ class InterfaceController extends Controller
     {
         $credentials = MikroTikHelper::getCredentials();
 
-        if (!$credentials) {
+        if (! $credentials) {
             return redirect()->route('mikrotik.index')
                 ->with('error', 'Silakan pilih atau tambahkan MikroTik terlebih dahulu.');
         }
 
-        $API = new RouterosAPI();
+        $API = new RouterosAPI;
         $API->debug = false;
 
         if ($API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
@@ -88,20 +89,20 @@ class InterfaceController extends Controller
     {
         $credentials = MikroTikHelper::getCredentials();
 
-        if (!$credentials) {
+        if (! $credentials) {
             return response()->json([
                 'success' => false,
                 'message' => 'MikroTik credentials not found',
             ], 401);
         }
 
-        $API = new RouterosAPI();
+        $API = new RouterosAPI;
         $API->debug = false;
 
         if ($API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
             $getinterfacetraffic = $API->comm('/interface/monitor-traffic', [
                 'interface' => $interface,
-                'once'      => '',
+                'once' => '',
             ]);
 
             $ftx = $getinterfacetraffic[0]['tx-bits-per-second'] ?? 0;
@@ -111,7 +112,7 @@ class InterfaceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => [
+                'data' => [
                     'tx' => (float) $ftx,
                     'rx' => (float) $frx,
                     'tx_mbps' => round((float) $ftx / 1000000, 2),
@@ -130,7 +131,7 @@ class InterfaceController extends Controller
     {
         $credentials = MikroTikHelper::getCredentials();
 
-        if (!$credentials) {
+        if (! $credentials) {
             return response()->json([
                 'success' => false,
                 'message' => 'MikroTik credentials not found',
@@ -142,17 +143,19 @@ class InterfaceController extends Controller
             $mikrotikId = session('mikrotik_id') ?? (Auth::check() && Auth::user()->active_mikrotik_id ? Auth::user()->active_mikrotik_id : null);
 
             // Dispatch job untuk menyimpan data di background
-            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
-                ->onQueue('traffic');
+            // Tidak perlu specify queue name, akan menggunakan default queue
+            SaveTrafficData::dispatch($interface, $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Traffic data save job queued successfully',
             ]);
         } catch (\Exception $e) {
+            Log::error('Error dispatching SaveTrafficData job: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -161,19 +164,19 @@ class InterfaceController extends Controller
     {
         $credentials = MikroTikHelper::getCredentials();
 
-        if (!$credentials) {
+        if (! $credentials) {
             return response()->json([
                 'success' => false,
                 'message' => 'MikroTik credentials not found',
             ], 401);
         }
 
-        $API = new RouterosAPI();
+        $API = new RouterosAPI;
         $API->debug = false;
         $API->timeout = 5;
         $API->attempts = 2;
 
-        if (!$API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
+        if (! $API->connect($credentials['ip'], $credentials['user'], $credentials['password'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal terhubung ke router',
@@ -186,23 +189,20 @@ class InterfaceController extends Controller
         // Ambil semua interface yang running
         $allInterfaces = $API->comm('/interface/print');
         $interfaces = [];
-            foreach ($allInterfaces as $if) {
-                if (isset($if['running']) && $if['running'] == 'true' && isset($if['name'])) {
-                    $interfaces[] = $if['name'];
-                    // Dispatch job untuk setiap interface
-                    SaveTrafficData::dispatch($if['name'], $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId)
-                        ->onQueue('traffic');
-                }
+        foreach ($allInterfaces as $if) {
+            if (isset($if['running']) && $if['running'] == 'true' && isset($if['name'])) {
+                $interfaces[] = $if['name'];
+                // Dispatch job untuk setiap interface
+                SaveTrafficData::dispatch($if['name'], $credentials['ip'], $credentials['user'], $credentials['password'], $mikrotikId);
             }
+        }
 
         $API->disconnect();
 
         return response()->json([
             'success' => true,
-            'message' => 'Traffic data collection queued for ' . count($interfaces) . ' interface(s)',
+            'message' => 'Traffic data collection queued for '.count($interfaces).' interface(s)',
             'interfaces' => $interfaces,
         ]);
     }
 }
-
-
