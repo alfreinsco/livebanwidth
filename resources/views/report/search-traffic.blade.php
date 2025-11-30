@@ -10,33 +10,25 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     <b>Mulai Tanggal:</b>
                 </label>
-                <input type="date" 
-                       name="tgl_awal" 
-                       id="tgl_awal" 
-                       value="{{ $tgl_awal ?? date('Y-m-d') }}" 
-                       required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                <input type="date" name="tgl_awal" id="tgl_awal" value="{{ $tgl_awal ?? date('Y-m-d') }}" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
             </div>
 
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     <b>Sampai Tanggal:</b>
                 </label>
-                <input type="date" 
-                       name="tgl_akhir" 
-                       id="tgl_akhir" 
-                       value="{{ $tgl_akhir ?? date('Y-m-d') }}" 
-                       required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                <input type="date" name="tgl_akhir" id="tgl_akhir" value="{{ $tgl_akhir ?? date('Y-m-d') }}" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
             </div>
 
             <div class="flex gap-2">
-                <button type="submit" 
-                        class="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium">
+                <button type="submit"
+                    class="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium">
                     <i class="fa-solid fa-search mr-2"></i>Search
                 </button>
                 <button type="button" onclick="resetSearch()"
-                        class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium">
+                    class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium">
                     <i class="fa-solid fa-rotate mr-2"></i>Reset
                 </button>
             </div>
@@ -59,7 +51,8 @@
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Gagal Memuat Data</h3>
             <p class="text-sm text-gray-500 mb-4" id="error-message">Terjadi kesalahan saat memuat data.</p>
-            <button onclick="loadSearchData()" class="inline-flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
+            <button onclick="loadSearchData()"
+                class="inline-flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
                 <i class="fa-solid fa-rotate mr-2"></i>Coba Lagi
             </button>
         </div>
@@ -76,18 +69,36 @@
             <!-- Will be populated by JavaScript -->
         </div>
 
+        <!-- Bulk Delete Button -->
+        <div class="mb-4 flex items-center justify-end">
+            <button onclick="showBulkDeleteModal()"
+                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">
+                <i class="fa-solid fa-trash mr-2"></i>Hapus Berdasarkan Rentang Tanggal
+            </button>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MikroTik Router</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interface</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">TX (Mbps)</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">RX (Mbps)</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total (Mbps)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            MikroTik Router</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Interface</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">TX
+                            (Mbps)</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">RX
+                            (Mbps)</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Total (Mbps)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                            & Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Message</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions</th>
                     </tr>
                 </thead>
                 <tbody id="data-table-body" class="bg-white divide-y divide-gray-200">
@@ -102,7 +113,7 @@
     </div>
 
     <script>
-        const apiUrl = '{{ route("search.report.data") }}';
+        const apiUrl = '{{ route('search.report.data') }}';
         let currentPage = 1;
         let currentPerPage = 15;
 
@@ -110,17 +121,17 @@
         function updateURL() {
             const tglAwal = document.getElementById('tgl_awal').value;
             const tglAkhir = document.getElementById('tgl_akhir').value;
-            
+
             const url = new URL(window.location.href);
             url.searchParams.set('tgl_awal', tglAwal || '');
             url.searchParams.set('tgl_akhir', tglAkhir || '');
             url.searchParams.set('page', currentPage);
             url.searchParams.set('per_page', currentPerPage);
-            
+
             // Hapus parameter jika kosong
             if (!tglAwal) url.searchParams.delete('tgl_awal');
             if (!tglAkhir) url.searchParams.delete('tgl_akhir');
-            
+
             // Update URL tanpa reload halaman
             window.history.pushState({}, '', url.toString());
         }
@@ -151,21 +162,30 @@
         function formatDate(dateString) {
             if (!dateString) return '-';
             const date = new Date(dateString);
-            const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
             return date.toLocaleDateString('id-ID', options);
         }
 
         // Format number dengan koma
         function formatNumber(num) {
             if (num === null || num === undefined) return '-';
-            return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+            return new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(num);
         }
 
         // Load search data
         function loadSearchData(page = null) {
             const tglAwal = document.getElementById('tgl_awal').value;
             const tglAkhir = document.getElementById('tgl_akhir').value;
-            
+
             // Gunakan page dari parameter atau currentPage
             if (page !== null) {
                 currentPage = page;
@@ -193,62 +213,66 @@
             url.searchParams.set('per_page', perPage);
 
             fetch(url.toString(), {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Update info message
-                    document.getElementById('info-message').textContent = data.view_tgl;
-                    document.getElementById('info-state').classList.remove('hidden');
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update info message
+                        document.getElementById('info-message').textContent = data.view_tgl;
+                        document.getElementById('info-state').classList.remove('hidden');
 
-                    // Populate table
-                    const tbody = document.getElementById('data-table-body');
-                    tbody.innerHTML = '';
+                        // Populate table
+                        const tbody = document.getElementById('data-table-body');
+                        tbody.innerHTML = '';
 
-                    if (data.data && data.data.length > 0) {
-                        data.data.forEach((item, index) => {
-                            const row = document.createElement('tr');
-                            row.className = 'hover:bg-gray-50';
-                            
-                            const rowNumber = data.pagination.from + index;
-                            const mikrotikHtml = item.mikrotik 
-                                ? `<div class="flex items-center">
+                        if (data.data && data.data.length > 0) {
+                            data.data.forEach((item, index) => {
+                                const row = document.createElement('tr');
+                                row.className = 'hover:bg-gray-50';
+
+                                const rowNumber = data.pagination.from + index;
+                                const mikrotikHtml = item.mikrotik ?
+                                    `<div class="flex items-center">
                                     <i class="fa-solid fa-router text-cyan-600 mr-2"></i>
                                     <div>
                                         <div class="font-medium">${item.mikrotik.name}</div>
                                         <div class="text-xs text-gray-500">${item.mikrotik.ip_address}</div>
                                     </div>
-                                </div>`
-                                : '<span class="text-gray-400 italic">-</span>';
-                            
-                            const interfaceHtml = item.interface_name 
-                                ? `<span class="font-mono">${item.interface_name}</span>`
-                                : '<span class="text-gray-400 italic">-</span>';
-                            
-                            const txMbps = item.tx_mbps !== null ? formatNumber(item.tx_mbps) : '-';
-                            const rxMbps = item.rx_mbps !== null ? formatNumber(item.rx_mbps) : '-';
-                            const totalMbps = (item.tx_mbps !== null && item.rx_mbps !== null) 
-                                ? formatNumber(parseFloat(item.tx_mbps) + parseFloat(item.rx_mbps))
-                                : '-';
-                            
-                            const dateTime = item.created_at || item.time;
-                            const dateTimeHtml = dateTime ? formatDate(dateTime) : '<span class="text-gray-400 italic">-</span>';
-                            
-                            const messageHtml = item.text 
-                                ? item.text 
-                                : '<span class="text-gray-400 italic">Traffic Log</span>';
+                                </div>` :
+                                    '<span class="text-gray-400 italic">-</span>';
 
-                            row.innerHTML = `
+                                const interfaceHtml = item.interface_name ?
+                                    `<span class="font-mono">${item.interface_name}</span>` :
+                                    '<span class="text-gray-400 italic">-</span>';
+
+                                const txMbps = item.tx_mbps !== null ? formatNumber(item.tx_mbps) : '-';
+                                const rxMbps = item.rx_mbps !== null ? formatNumber(item.rx_mbps) : '-';
+                                const totalMbps = (item.tx_mbps !== null && item.rx_mbps !== null) ?
+                                    formatNumber(parseFloat(item.tx_mbps) + parseFloat(item.rx_mbps)) :
+                                    '-';
+
+                                const dateTime = item.created_at || item.time;
+                                const dateTimeHtml = dateTime ? formatDate(dateTime) :
+                                    '<span class="text-gray-400 italic">-</span>';
+
+                                const messageHtml = item.text ?
+                                    item.text :
+                                    '<span class="text-gray-400 italic">Traffic Log</span>';
+
+                                // Gunakan type dari response atau tentukan berdasarkan data
+                                const logType = item.type || (item.interface_name ? 'traffic' : 'report');
+
+                                row.innerHTML = `
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rowNumber}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${mikrotikHtml}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${interfaceHtml}</td>
@@ -263,13 +287,19 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dateTimeHtml}</td>
                                 <td class="px-6 py-4 text-sm text-gray-900">${messageHtml}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <button onclick="confirmDeleteLog(${item.id}, '${logType}')"
+                                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-xs">
+                                        <i class="fa-solid fa-trash mr-1"></i>Hapus
+                                    </button>
+                                </td>
                             `;
-                            tbody.appendChild(row);
-                        });
+                                tbody.appendChild(row);
+                            });
 
-                        // Update pagination info
-                        const paginationInfo = document.getElementById('pagination-info');
-                        paginationInfo.innerHTML = `
+                            // Update pagination info
+                            const paginationInfo = document.getElementById('pagination-info');
+                            paginationInfo.innerHTML = `
                             <div class="text-sm text-gray-600">
                                 Menampilkan ${data.pagination.from} - ${data.pagination.to} dari ${new Intl.NumberFormat('id-ID').format(data.pagination.total)} data
                             </div>
@@ -278,46 +308,47 @@
                             </div>
                         `;
 
-                        // Update currentPage dan currentPerPage dari response
-                        currentPage = data.pagination.current_page;
-                        currentPerPage = data.pagination.per_page;
-                        
-                        // Update URL dengan state yang benar
-                        updateURL();
+                            // Update currentPage dan currentPerPage dari response
+                            currentPage = data.pagination.current_page;
+                            currentPerPage = data.pagination.per_page;
 
-                        // Update pagination controls
-                        updatePaginationControls(data.pagination);
+                            // Update URL dengan state yang benar
+                            updateURL();
 
-                        // Show content, hide loading
-                        document.getElementById('loading-state').classList.add('hidden');
-                        document.getElementById('content-state').classList.remove('hidden');
-                    } else {
-                        tbody.innerHTML = `
+                            // Update pagination controls
+                            updatePaginationControls(data.pagination);
+
+                            // Show content, hide loading
+                            document.getElementById('loading-state').classList.add('hidden');
+                            document.getElementById('content-state').classList.remove('hidden');
+                        } else {
+                            tbody.innerHTML = `
                             <tr>
-                                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
                                     Tidak ada data ditemukan
                                 </td>
                             </tr>
                         `;
-                        document.getElementById('loading-state').classList.add('hidden');
-                        document.getElementById('content-state').classList.remove('hidden');
+                            document.getElementById('loading-state').classList.add('hidden');
+                            document.getElementById('content-state').classList.remove('hidden');
+                        }
+                    } else {
+                        throw new Error(data.message || 'Gagal memuat data');
                     }
-                } else {
-                    throw new Error(data.message || 'Gagal memuat data');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading search data:', error);
-                document.getElementById('error-message').textContent = error.message || 'Terjadi kesalahan saat memuat data.';
-                document.getElementById('loading-state').classList.add('hidden');
-                document.getElementById('error-state').classList.remove('hidden');
-            });
+                })
+                .catch(error => {
+                    console.error('Error loading search data:', error);
+                    document.getElementById('error-message').textContent = error.message ||
+                        'Terjadi kesalahan saat memuat data.';
+                    document.getElementById('loading-state').classList.add('hidden');
+                    document.getElementById('error-state').classList.remove('hidden');
+                });
         }
 
         // Update pagination controls
         function updatePaginationControls(pagination) {
             const controls = document.getElementById('pagination-controls');
-            
+
             if (pagination.last_page <= 1) {
                 controls.innerHTML = '';
                 return;
@@ -326,7 +357,8 @@
             let paginationHtml = '<div class="flex flex-col sm:flex-row items-center justify-between gap-4">';
             paginationHtml += '<div class="flex items-center space-x-2">';
             paginationHtml += '<span class="text-sm text-gray-600">Per halaman:</span>';
-            paginationHtml += `<select id="per-page-select" onchange="changePerPage(this.value)" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">`;
+            paginationHtml +=
+                `<select id="per-page-select" onchange="changePerPage(this.value)" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">`;
             paginationHtml += `<option value="15" ${currentPerPage == 15 ? 'selected' : ''}>15</option>`;
             paginationHtml += `<option value="25" ${currentPerPage == 25 ? 'selected' : ''}>25</option>`;
             paginationHtml += `<option value="50" ${currentPerPage == 50 ? 'selected' : ''}>50</option>`;
@@ -335,7 +367,7 @@
             paginationHtml += '</select>';
             paginationHtml += '</div>';
             paginationHtml += '<div class="flex items-center space-x-1">';
-            
+
             // Previous button
             if (pagination.current_page > 1) {
                 paginationHtml += `<a href="#" onclick="loadSearchData(${pagination.current_page - 1}); return false;" class="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-cyan-600 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-600 transition ease-in-out duration-150 hover:bg-cyan-50">
@@ -356,25 +388,31 @@
             const endPage = Math.min(pagination.last_page, pagination.current_page + 2);
 
             if (startPage > 1) {
-                paginationHtml += `<a href="#" onclick="loadSearchData(1); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">1</a>`;
+                paginationHtml +=
+                    `<a href="#" onclick="loadSearchData(1); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">1</a>`;
                 if (startPage > 2) {
-                    paginationHtml += `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">...</span>`;
+                    paginationHtml +=
+                        `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">...</span>`;
                 }
             }
 
             for (let i = startPage; i <= endPage; i++) {
                 if (i === pagination.current_page) {
-                    paginationHtml += `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-cyan-600 border border-cyan-600 cursor-default leading-5">${i}</span>`;
+                    paginationHtml +=
+                        `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-cyan-600 border border-cyan-600 cursor-default leading-5">${i}</span>`;
                 } else {
-                    paginationHtml += `<a href="#" onclick="loadSearchData(${i}); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">${i}</a>`;
+                    paginationHtml +=
+                        `<a href="#" onclick="loadSearchData(${i}); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">${i}</a>`;
                 }
             }
 
             if (endPage < pagination.last_page) {
                 if (endPage < pagination.last_page - 1) {
-                    paginationHtml += `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">...</span>`;
+                    paginationHtml +=
+                        `<span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">...</span>`;
                 }
-                paginationHtml += `<a href="#" onclick="loadSearchData(${pagination.last_page}); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">${pagination.last_page}</a>`;
+                paginationHtml +=
+                    `<a href="#" onclick="loadSearchData(${pagination.last_page}); return false;" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-cyan-700 focus:outline-none focus:ring ring-cyan-300 focus:border-cyan-300 active:bg-cyan-50 active:text-cyan-700 transition ease-in-out duration-150 hover:bg-cyan-50">${pagination.last_page}</a>`;
             }
 
             // Next button
@@ -394,7 +432,7 @@
 
             paginationHtml += '</div>';
             paginationHtml += '</div>';
-            
+
             controls.innerHTML = paginationHtml;
         }
 
@@ -408,16 +446,16 @@
 
         // Reset search
         function resetSearch() {
-            document.getElementById('tgl_awal').value = '{{ date("Y-m-d") }}';
-            document.getElementById('tgl_akhir').value = '{{ date("Y-m-d") }}';
+            document.getElementById('tgl_awal').value = '{{ date('Y-m-d') }}';
+            document.getElementById('tgl_akhir').value = '{{ date('Y-m-d') }}';
             currentPage = 1;
             currentPerPage = 15;
-            
+
             // Clear URL parameters
             const url = new URL(window.location.href);
             url.search = '';
             window.history.pushState({}, '', url.toString());
-            
+
             document.getElementById('content-state').classList.add('hidden');
             document.getElementById('info-state').classList.add('hidden');
             document.getElementById('error-state').classList.add('hidden');
@@ -442,19 +480,171 @@
             }
         });
 
+        // Delete single log
+        function confirmDeleteLog(id, type) {
+            if (confirm('Apakah Anda yakin ingin menghapus log ini?')) {
+                deleteLog(id, type);
+            }
+        }
+
+        function deleteLog(id, type) {
+            const url = '{{ route('traffic-log.delete', ':id') }}'.replace(':id', id) + '?type=' + type;
+
+            fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Log berhasil dihapus');
+                        // Reload data
+                        loadSearchData();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus log');
+                });
+        }
+
+        // Bulk delete modal
+        function showBulkDeleteModal() {
+            const modal = document.getElementById('bulk-delete-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function hideBulkDeleteModal() {
+            const modal = document.getElementById('bulk-delete-modal');
+            modal.classList.add('hidden');
+        }
+
+        function confirmBulkDelete() {
+            const tglAwal = document.getElementById('bulk_delete_tgl_awal').value;
+            const tglAkhir = document.getElementById('bulk_delete_tgl_akhir').value;
+            const type = document.getElementById('bulk_delete_type').value;
+
+            if (!tglAwal || !tglAkhir) {
+                alert('Silakan pilih tanggal awal dan akhir');
+                return;
+            }
+
+            const confirmMessage =
+                `Apakah Anda yakin ingin menghapus semua log dari ${tglAwal} sampai ${tglAkhir}?\n\nTindakan ini tidak dapat dibatalkan!`;
+            if (confirm(confirmMessage)) {
+                bulkDeleteLogs(tglAwal, tglAkhir, type);
+            }
+        }
+
+        function bulkDeleteLogs(tglAwal, tglAkhir, type) {
+            const url = '{{ route('traffic-logs.delete-by-date') }}';
+
+            fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        tgl_awal: tglAwal,
+                        tgl_akhir: tglAkhir,
+                        type: type
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Berhasil menghapus ${data.deleted_count} log(s)`);
+                        hideBulkDeleteModal();
+                        // Reset form
+                        document.getElementById('bulk_delete_tgl_awal').value = '';
+                        document.getElementById('bulk_delete_tgl_akhir').value = '';
+                        document.getElementById('bulk_delete_type').value = 'both';
+                        // Reload data
+                        loadSearchData();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus log');
+                });
+        }
+
         // Load data on page load if dates are set
         document.addEventListener('DOMContentLoaded', function() {
             // Baca state dari URL terlebih dahulu
             loadStateFromURL();
-            
+
             const tglAwal = document.getElementById('tgl_awal').value;
             const tglAkhir = document.getElementById('tgl_akhir').value;
-            
+
             // Jika ada tanggal di URL atau form, load data
             if (tglAwal && tglAkhir) {
                 loadSearchData();
             }
         });
     </script>
-</x-layouts.app>
 
+    <!-- Bulk Delete Modal -->
+    <div id="bulk-delete-modal" class="hidden fixed inset-0 bg-gray-600/50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Hapus Log Berdasarkan Rentang Tanggal</h3>
+                    <button onclick="hideBulkDeleteModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Mulai Tanggal:
+                    </label>
+                    <input type="date" id="bulk_delete_tgl_awal"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Sampai Tanggal:
+                    </label>
+                    <input type="date" id="bulk_delete_tgl_akhir"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipe Log:
+                    </label>
+                    <select id="bulk_delete_type"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        <option value="both">Semua (Traffic Logs & Reports)</option>
+                        <option value="traffic">Traffic Logs Saja</option>
+                        <option value="report">Reports Saja</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button onclick="hideBulkDeleteModal()"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        Batal
+                    </button>
+                    <button onclick="confirmBulkDelete()"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fa-solid fa-trash mr-2"></i>Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-layouts.app>

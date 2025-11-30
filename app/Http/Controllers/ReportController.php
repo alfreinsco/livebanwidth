@@ -88,8 +88,12 @@ class ReportController extends Controller
 
             // Format data untuk response
             $formattedData = $currentItems->map(function ($item) {
+                // Tentukan type berdasarkan apakah item adalah Traffic atau Report
+                $type = isset($item->interface_name) ? 'traffic' : 'report';
+
                 return [
                     'id' => $item->id,
+                    'type' => $type,
                     'interface_name' => $item->interface_name ?? null,
                     'tx_mbps' => $item->tx_mbps !== null ? (float) $item->tx_mbps : null,
                     'rx_mbps' => $item->rx_mbps !== null ? (float) $item->rx_mbps : null,
@@ -194,5 +198,76 @@ class ReportController extends Controller
         $post->save();
 
         return response()->json($post, 200);
+    }
+
+    public function deleteTrafficLog(Request $request, $id)
+    {
+        try {
+            // Untuk DELETE method, ambil type dari query parameter
+            $type = $request->query('type', 'traffic'); // 'traffic' or 'report'
+
+            if ($type === 'traffic') {
+                $log = Traffic::findOrFail($id);
+                $log->delete();
+            } else {
+                $log = Report::findOrFail($id);
+                $log->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Log berhasil dihapus',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteTrafficLogsByDateRange(Request $request)
+    {
+        try {
+            $tgl_awal = $request->input('tgl_awal');
+            $tgl_akhir = $request->input('tgl_akhir');
+            $type = $request->input('type', 'both'); // 'traffic', 'report', or 'both'
+
+            if (! $tgl_awal || ! $tgl_akhir) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tanggal awal dan akhir harus diisi',
+                ], 400);
+            }
+
+            $deletedCount = 0;
+
+            // Hapus dari traffic_logs
+            if ($type === 'traffic' || $type === 'both') {
+                $trafficDeleted = Traffic::whereDate('created_at', '>=', $tgl_awal)
+                    ->whereDate('created_at', '<=', $tgl_akhir)
+                    ->delete();
+                $deletedCount += $trafficDeleted;
+            }
+
+            // Hapus dari data table (Report)
+            if ($type === 'report' || $type === 'both') {
+                $reportDeleted = Report::where('time', '>=', $tgl_awal.' 00:00:00')
+                    ->where('time', '<=', $tgl_akhir.' 23:59:59')
+                    ->delete();
+                $deletedCount += $reportDeleted;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} log(s)",
+                'deleted_count' => $deletedCount,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }

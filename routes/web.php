@@ -66,6 +66,8 @@ Route::middleware('auth')->group(function () {
     Route::get('report-up/load', [ReportController::class, 'load'])->name('report-up.load');
     Route::get('report-up/search', [ReportController::class, 'search'])->name('search.report');
     Route::get('report-up/search/data', [ReportController::class, 'searchData'])->name('search.report.data');
+    Route::delete('report-up/traffic-log/{id}', [ReportController::class, 'deleteTrafficLog'])->name('traffic-log.delete');
+    Route::post('report-up/traffic-logs/delete-by-date', [ReportController::class, 'deleteTrafficLogsByDateRange'])->name('traffic-logs.delete-by-date');
 
     // User Management
     Route::resource('users', \App\Http\Controllers\UserController::class);
